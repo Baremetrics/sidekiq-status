@@ -32,22 +32,22 @@ module Sidekiq::Status
           status["worker"] = job.klass
           status["args"] = job.args
           status["jid"] = job.jid
+          status["enqueued_at"] = work["payload"]["enqueued_at"]
           status["pct_complete"] = ((status["at"].to_f / status["total"].to_f) * 100).to_i if status["total"].to_f > 0
           @statuses << OpenStruct.new(status)
         end
 
-        if ["worker", "status", "update_time", "pct_complete", "message"].include?(params[:sort_by])
+        if ["worker", "status", "update_time", "pct_complete", "message", "jid"].include?(params[:sort_by])
           sort_by = params[:sort_by]
         else
-          sort_by = "worker"
+          sort_by = "enqueued_at"
         end
 
-        sort_dir = "asc"
+        sort_dir = (params[:sort_dir] || "asc").downcase
 
-        if params[:sort_dir] == "asc"
+        if sort_dir == "asc"
           @statuses = @statuses.sort { |x,y| x.send(sort_by) <=> y.send(sort_by) }
         else # DESC
-          sort_dir = "desc"
           @statuses = @statuses.sort { |y,x| x.send(sort_by) <=> y.send(sort_by) }
         end
 
