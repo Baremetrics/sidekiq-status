@@ -26,14 +26,18 @@ module Sidekiq::Status
           else
             args[2]
           end
-          job = Struct.new(:jid, :klass, :args).new(work["payload"]["jid"], work["payload"]["class"], work["payload"]["args"])
+          job = Struct.new(:jid, :klass, :args, :queue, :retry).new(work["payload"]["jid"], work["payload"]["class"], work["payload"]["args"], work["payload"]["queue"], work["payload"]["retry"])
           status = Sidekiq::Status::get_all job.jid
           next if !status || status.count < 2
+
+          status["retry"] = job.retry
+          status["queue"] = job.queue
           status["worker"] = job.klass
           status["args"] = job.args
           status["jid"] = job.jid
           status["enqueued_at"] = work["payload"]["enqueued_at"]
           status["pct_complete"] = ((status["at"].to_f / status["total"].to_f) * 100).to_i if status["total"].to_f > 0
+
           @statuses << OpenStruct.new(status)
         end
 
@@ -54,6 +58,7 @@ module Sidekiq::Status
         @headers = [
           { id: "worker", name: "Worker/jid", class: nil, url: nil},
           { id: "status", name: "Status", class: nil, url: nil},
+          { id: "enqueued_at", name: "Enqueued", class: nil, url: nil},
           { id: "update_time", name: "Last Updated", class: nil, url: nil},
           { id: "pct_complete", name: "Progress", class: nil, url: nil},
           { id: "message", name: "Message", class: nil, url: nil}
