@@ -18,7 +18,6 @@
 <table class="table table-striped table-bordered table-condensed">
   <tr>
     <th style='width: 10%; text-align:center;'>Worker</th>
-    <th style='width: 10%; text-align:center;'>Queue</th>
     <th style='width: 10%; text-align:center;'>Status</th>
     <th style='width: 10%; text-align:center;'>Updated</th>
     <th style='width: 10%; text-align:center;'>Account</th>
@@ -27,7 +26,6 @@
   <% @statuses.each do |container| %>
     <tr>
       <td><span title='<%= container.jid %>'><%= container.worker %></span></td>
-      <td><span><%= container.queue %></span></td>
 
       <% status_class = container.pct_complete.to_i >= 100 ? 'label-success' : 'label-info' %>
       <td style='text-align: center;'>
